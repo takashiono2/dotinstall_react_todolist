@@ -9,16 +9,22 @@
   <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
 </head>
 <body>
+
   <div id="root"></div>
     <script type="text/babel">
       (()=>{
 
         const todos = [];
         function TodoHeader(props){
+          const remaining = props.todos.filter(todo=>{
+            return !todo.idDone;
+          });
+
           return(
             <h1>
+              <button onClick={props.purge}>Purge</button>
               My Todos
-              <span>(1/3)</span>
+              <span>({remaining.length}/{props.todos.length})</span>
             </h1>
           );
 
@@ -68,7 +74,7 @@
               <input type="text" value={props.item} onChange={props.updateItem}/>
               <input type="submit" value="Add" />
             </form>
-          )
+          );
         }
 
         function getUniqueId(){
@@ -86,6 +92,20 @@
             this.deleteTodo = this.deleteTodo.bind(this);
             this.updateItem = this.updateItem.bind(this);
             this.addTodo = this.addTodo.bind(this);
+            this.purge = this.purge.bind(this);
+          }
+
+          purge(){
+            if(!confirm('are you sure?')){
+              return;
+            }
+
+            const todos = this.state.todos.filter((todo)=>{
+              return !todo.isDone;
+            });
+            this.setState({
+              todos: todos
+            });
           }
 
           addTodo(e){
@@ -103,7 +123,8 @@
             const todos = this.state.todos.slice();
             todos.push(item);
             this.setState({
-              todos: todos
+              todos: todos,
+              item:''
             });
           }
 
@@ -143,6 +164,7 @@
               <div className="container">
                   <TodoHeader
                     todos={this.state.todos}
+                    purge={this.purge}
                   />
                   <TodoList
                     todos={this.state.todos}
